@@ -1,4 +1,4 @@
-nickbalboni.com
+NickBalboni.com
 ===============
 
 My personal website

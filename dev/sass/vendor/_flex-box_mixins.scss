@@ -27,9 +27,8 @@
 //
 // Basically this will use:
 //
-// * Fallback, old syntax (IE10, Safari, mobile webkit browsers)
-// * Prefixed standard syntax (Chrome)
-// * Final standards syntax (FF, IE11, Opera 12.1)
+// * Fallback, old syntax (IE10, mobile webkit browsers - no wrapping)
+// * Final standards syntax (FF, Safari, Chrome, IE11, Opera)
 //
 // This was inspired by:
 // 
@@ -115,7 +114,7 @@
 	flex-direction: $value;
 }
 	// Shorter version:
-	@mixin flex-dir($value: false) { @include flex-direction($value); }
+	@mixin flex-dir($args...) { @include flex-direction($args...); }
 
 //----------------------------------------------------------------------
 
@@ -299,6 +298,8 @@
 	} @else if $value == space-between {
 		-webkit-box-pack: justify;
 		-ms-flex-pack: justify;
+	} @else if $value == space-around {
+		-ms-flex-pack: distribute;		
 	} @else {
 		-webkit-box-pack: $value;
 		-ms-flex-pack: $value;
@@ -308,7 +309,7 @@
 	justify-content: $value;
 }
 	// Shorter version:
-	@mixin flex-just($value: flex-start) { @include justify-content($value); }
+	@mixin flex-just($args...) { @include justify-content($args...); }
 
 //----------------------------------------------------------------------
 

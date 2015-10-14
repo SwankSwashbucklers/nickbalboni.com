@@ -257,7 +257,7 @@ def migrate_files(directory, destination):
             if dirname.startswith('!') or dirname in ['.DS_STORE']:
                 dirs.remove(dirname)
         for filename in files:
-            if not filename.startswith('!'):
+            if not filename.startswith('!') and filename not in ['.DS_Store']:
                 if not isfile(filename): #added for the reuse flag
                     copy(join(root, filename), join(destination, filename))
                 if not filename.startswith('~'):

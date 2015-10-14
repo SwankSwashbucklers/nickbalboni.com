@@ -27,10 +27,11 @@ parser.add_argument("-r", "--reuse",
 args = parser.parse_args()
 
 if args.path is None:
-    if args.deploy:
-        args.path = os.getcwd()
-    else:
-        args.path = gettempdir()
+    args.path = os.getcwd()
+    # if args.deploy:
+    #     args.path = os.getcwd()
+    # else:
+    #     args.path = gettempdir()
 
 
 
@@ -102,9 +103,9 @@ def sPopen(*args):
         shell = False
     if os.name == 'nt':
         from subprocess import CREATE_NEW_CONSOLE
-        Popen( command, shell=shell, creationflags=CREATE_NEW_CONSOLE )
+        return Popen( command, shell=shell, creationflags=CREATE_NEW_CONSOLE )
     else:
-        Popen( command, shell=shell )
+        return Popen( command, shell=shell )
 
 def sCall(*args):
     command, shell = list(args), True
@@ -199,28 +200,32 @@ def load_resource():
 
 
 WATCH_SASS_SCRIPT = Template("""\
-from sys import argv
+from sys import argv, exit
+from signal import signal, SIGTERM, SIGINT
 from shutil import rmtree
 from subprocess import Popen
 from inspect import getframeinfo, currentframe
 from os.path import dirname, abspath, isdir, isfile
-import os
+from os import chdir, remove
 
-# change working directory to script directory
-os.chdir(dirname(abspath(getframeinfo(currentframe()).filename)))
+def signal_term_handler(signal, frame):
+    if not p is None: p.kill()
+    if isfile("_all.scss"): remove("_all.scss")
+    if isdir(".sass-cache"): rmtree(".sass-cache")
+    print(argv[0])
+    remove("watch.py") # argv[0] contains full path
+    exit(0)
+
+p = None
+signal(SIGTERM, signal_term_handler)
+signal(SIGINT, signal_term_handler)
+chdir(dirname(abspath(getframeinfo(currentframe()).filename)))
 
 command = "sass --watch"
 for x in range(1, len(argv)):
     command += " {0}.scss:../../www/static/css/{0}.css".format(argv[x])
 p = Popen(command, shell=True)
-try:
-    while True:
-        pass
-except KeyboardInterrupt:
-    p.kill()
-    if isfile("_all.scss"): os.remove("_all.scss")
-    if isdir(".sass-cache"): rmtree(".sass-cache")
-    os.remove("watch.py") # argv[0] contains full path
+p.wait()
 """ )
 
 
@@ -343,12 +348,17 @@ def generate_stylesheets():
     if args.deploy:
         for s in stylesheets:
             sCall("sass", sass_path+"/"+s+".scss", "static/css/"+s+".min.css", 
-                  "-t", "compressed", "--sourcemap=none", "-C")
+                    "-t", "compressed", "--sourcemap=none", "-C")
         os.remove( join(dev_path, "_all.scss") )
     else:
         Template.populate(WATCH_SASS_SCRIPT, '../dev/sass/watch.py')
-        sPopen( 'python', '../dev/sass/watch.py', *stylesheets )
+        command = "sass --watch"
+        for s in stylesheets:
+            command += " ../dev/sass/{0}.scss:./static/css/{0}.css".format(s)
+        p = Popen(command, shell=True)
+        #p = sPopen( 'python', '../dev/sass/watch.py', *stylesheets )
         sleep(3) # delay so the stylesheets have time to be created
+        p.kill() # note: kill sends SIGKILL
     # return css routes from generated stylesheets
     return [ STATIC_ROUTE(f, f, "static/css") for f in os.listdir("static/css")]
 

@@ -309,7 +309,8 @@ def generate_favicon_resources():
     # return routes for generated favicon resources
     fav_route = lambda f:   STATIC_ROUTE(f, f, "static/favicon")
     app_route = lambda p,t: STATIC_ROUTE(p, t("57"), "static/favicon")
-    return ([ fav_route(fav_tpl(r)) for r in fav_res ] +
+    return ([ fav_route("favicon.ico") ] +
+            [ fav_route(fav_tpl(r)) for r in fav_res ] +
             [ fav_route(and_tpl(r)) for r in android_res ] +
             [ fav_route(app_tpl(r)) for r in apple_res if r!="57" ] +
             [ fav_route(pra_tpl(r)) for r in apple_res if r!="57" ] +
@@ -469,3 +470,15 @@ Template.populate(Template(head_tpl), 'views/~head.tpl',
     favicon_resources=get_favicon_head(),
     open_graph=get_opengraph_head(),
     style_sheets=get_stylesheet_head() )
+
+### Packaging For Deployment ###################################################
+if not args.deploy: exit(0)
+from zipfile import ZipFile
+os.chdir('..')
+if isfile('www.zip'): os.remove('www.zip')
+with ZipFile('www.zip', 'w') as zip_file:
+    for root, dirs, files in os.walk( join(os.getcwd(), 'www') ):
+        rel_path = relpath(root, os.getcwd())
+        for f in files:
+            zip_file.write( join(rel_path, f) )
+

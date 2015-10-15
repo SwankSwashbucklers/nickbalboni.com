@@ -9,8 +9,8 @@
     <meta name="author" content="Nick Balboni">
     <meta name="favicon_elements">
     <meta name="open_graph">
-    <meta name="stylesheets">
+    <meta name="style_sheets">
 
-<!-- ****** jQuery ************************************************************************************************* -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet" type="text/css">
 </head>

@@ -437,11 +437,15 @@ if isdir("www"): rmtree("www")
 os.makedirs("www")
 os.chdir("www")
 
-### Import Bottle Framework #################################################### 
-bottle_url = ( "https://raw.githubusercontent.com/"
-               "bottlepy/bottle/master/bottle.py" )
-with urlopen(bottle_url) as response, open('bottle.py', 'wb') as f:
-    copyfileobj(response, f)
+### Import Bottle Framework ####################################################
+from urllib.error import URLError
+try:
+    bottle_url = ( "https://raw.githubusercontent.com/"
+                    "bottlepy/bottle/master/bottle.py" )
+    with urlopen(bottle_url) as response, open('bottle.py', 'wb') as f:
+        copyfileobj(response, f)
+except URLError as e:
+    print(e)
 
 ### Generate App.py ############################################################
 Template.populate(APP_PY_TEMPLATE, 'app.py', 
@@ -481,4 +485,6 @@ with ZipFile('www.zip', 'w') as zip_file:
         rel_path = relpath(root, os.getcwd())
         for f in files:
             zip_file.write( join(rel_path, f) )
+
+# set up watch for template and js files using watchdog
 

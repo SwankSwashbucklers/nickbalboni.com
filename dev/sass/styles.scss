@@ -1,2 +1,22 @@
 @import "all";
 
+.icon-holder {
+	@include flexbox;
+	@include flex-flow(wrap);
+	@include justify-content(space-around);	
+	> span {
+		@include flex(auto);
+		position: relative;
+		font-size: 8rem;
+		text-align: center;
+		margin: 2rem;
+		&:hover {
+			opacity: 0.8;
+		}
+		> a {
+			position: absolute;
+			height: 100%;
+			width: 100%;
+		}
+	}
+}

@@ -2,7 +2,7 @@
 <html lang="en">
 % include('~head.tpl', title='Nick Balboni | The Man, The Legend', description='Welcome to nickbalboni.com!')
     <body>
-        <div class="icon-holder">
+        <div class="links">
             <span class="icon-appswithstyle">
                 <a href="http://appswithstyle.net/"></a>
             </span>
@@ -19,24 +19,6 @@
                 <a href="mailto:nbalboni2@gmail.com"></a>
             </span>
         </div>
-        <!--div class="description" style="display: hidden">
-            <span id="home-des">
-                Home Description
-            </span>
-            <span id="ghub-des">
-                GitHub Description
-            </span>
-            <span id="oflo-des">
-                StackOverflow Description
-            </span>
-            <span id="apps-des">
-                appsWithStyle Description
-            </span-->
-        </div>
-
-        <script type="text/javascript">
-            //document.getElementById('')
-        </script>
 
     </body>
 </html>

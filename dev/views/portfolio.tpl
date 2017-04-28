@@ -2,7 +2,7 @@
 <html lang="en">
 % include('~head.tpl', title='Nick Balboni | The Man, The Legend', description='Welcome to nickbalboni.com!')
   <body class="main nick">
-    % include('~header.tpl', page="")
+    % include('~header.tpl', page="portfolio")
     <main>
 
     </main>

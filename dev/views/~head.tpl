@@ -7,10 +7,10 @@
 
     <meta name="description" content="{{description}}">
     <meta name="author" content="Nick Balboni">
-    <meta name="favicon_elements">
+    <meta name="favicon_resources">
     <meta name="open_graph">
     <meta name="style_sheets">
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,600,900" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,400i,500i,600" rel="stylesheet">
 </head>

@@ -1,4 +1,5 @@
-
+'''
+'''
 
 
 ################################################################################
@@ -12,7 +13,7 @@ import os
 parser = ArgumentParser(
     formatter_class=ArgumentDefaultsHelpFormatter,
     description=__doc__ )
-parser.add_argument("-p", "--path", 
+parser.add_argument("-p", "--path",
     type=str,
     help="the path to the desired location of the generated site")
 parser.add_argument("-d", "--deploy",
@@ -22,7 +23,7 @@ parser.add_argument("-d", "--deploy",
 parser.add_argument("-r", "--reuse",
     action="store_true",
     help="if an already built website exists at the targeted path, attempt to"
-    "reuse already present resources (i.e. images, favicon elements and other" 
+    "reuse already present resources (i.e. images, favicon elements and other"
     "static resources)" )
 args = parser.parse_args()
 
@@ -66,7 +67,7 @@ class TemplateWrapper():
                     x, '*'*(HTML_LL-len(x)-16) )
             )
         ]
-        
+
     def __call__(self, template):
         for header in self.headers:
             ptn, tpl = header
@@ -92,13 +93,13 @@ class TemplateWrapper():
 
 Template = TemplateWrapper(Template)
 
-    
+
 from subprocess import Popen, call, DEVNULL, STDOUT, PIPE
 from sys import executable
 
 def sPopen(*args):
     command, shell = list(args), True
-    if command[0] == 'python': 
+    if command[0] == 'python':
         command[0] = executable
         shell = False
     if os.name == 'nt':
@@ -109,11 +110,11 @@ def sPopen(*args):
 
 def sCall(*args):
     command, shell = list(args), True
-    if command[0] == 'python': 
+    if command[0] == 'python':
         command[0] = executable
         shell = False
     if os.name != 'nt':
-        shell = False 
+        shell = False
     call( command, shell=shell, stdout=DEVNULL, stderr=STDOUT )
 
 
@@ -138,18 +139,18 @@ import os
 
 parser = ArgumentParser(
     formatter_class=ArgumentDefaultsHelpFormatter,
-    description=__doc__ )                                
+    description=__doc__ )
 parser.add_argument('-d', '--deploy',
     action='store_true',
-    help='Run server for deployment' )       
-parser.add_argument('-i', '--ip', 
+    help='Run server for deployment' )
+parser.add_argument('-i', '--ip',
     type=str,
     default="127.0.0.1",
-    help='ip to run the server against, default localhost' ) 
-parser.add_argument('-p', '--port', 
+    help='ip to run the server against, default localhost' )
+parser.add_argument('-p', '--port',
     type=str,
     default="8080",
-    help='port to run server on' ) 
+    help='port to run server on' )
 args = parser.parse_args()
 
 # change working directory to script directory
@@ -181,7 +182,7 @@ $ph{Run Server}
 if args.deploy:
     run(host=args.ip, port=args.port, server='cherrypy') #deployment
 else:
-    run(host=args.ip, port=args.port, debug=True, reloader=True) #development 
+    run(host=args.ip, port=args.port, debug=True, reloader=True) #development
 """ )
 
 
@@ -261,21 +262,26 @@ def migrate_files(directory, destination):
                 if not isfile(filename): #added for the reuse flag
                     copy(join(root, filename), join(destination, filename))
                 if not filename.startswith('~'):
-                    yield normpath(join(relpath(root, src_path), 
+                    yield normpath(join(relpath(root, src_path),
                                         filename) ).replace('\\', '/')
 
 
 def migrate_views():
-    return ([ MAIN_ROUTE("", "load_root", "index") ] + 
-            [ MAIN_ROUTE(
-                splitext(r)[0],
-                "load_" + splitext(r.split("/")[-1])[0].replace("-","_"),
-                splitext(r.split("/")[-1])[0] 
-            ) for r in migrate_files("dev/views", "views") ])
+    routes = [ MAIN_ROUTE("", "load_root", "index") ]
+    for route in migrate_files("dev/views", "views"):
+        tpl_name = splitext(route.split("/")[-1])[0]
+        if tpl_name == "index":
+            continue
+        routes.append(MAIN_ROUTE(
+            splitext(route)[0],
+            "load_" + tpl_name.replace("-","_"),
+            tpl_name
+        ))
+    return routes
 
 
 def get_api_routes():
-    with open( join(SCRIPT_DIR, "dev/py", "routes.py"), 'r') as f: 
+    with open( join(SCRIPT_DIR, "dev/py", "routes.py"), 'r') as f:
         return f.read()
 
 
@@ -302,7 +308,7 @@ def generate_favicon_resources():
         elif res in apple_res: path = abspath( fav_path(app_tpl(res)) )
         else:                  path = abspath( fav_path(fav_tpl(res)) )
         sCall("inkscape", "-z", "-e", path, "-w", res, "-h", res, favicon_tpl)
-    sCall( *(["convert"] + [fav_path(fav_tpl(r)) for r in ico_res] + 
+    sCall( *(["convert"] + [fav_path(fav_tpl(r)) for r in ico_res] +
              [fav_path("favicon.ico")]) )
     for res in [ r for r in ico_res if r not in fav_res ]:
         os.remove(fav_path(fav_tpl(res)))
@@ -322,33 +328,33 @@ def generate_stylesheets():
     dev_path   = join( SCRIPT_DIR, "dev/sass" )
     is_sass    = lambda f: splitext(f)[-1].lower() in ['.scss', '.sass']
     is_mixin   = lambda f: match(r'.*mixins?$', splitext(f)[0].lower())
-    get_import = lambda p: [ join( relpath(r, dev_path), f ) 
-                             for r, d, fs in os.walk( join(dev_path, p) ) 
+    get_import = lambda p: [ join( relpath(r, dev_path), f )
+                             for r, d, fs in os.walk( join(dev_path, p) )
                              for f in fs if is_sass(f) ]
     if not isdir("static/css"): os.makedirs("static/css")
     # generate _all.scss file from existing sass resources
     with open( join( dev_path, '_all.scss' ), 'w') as f:
         f.write('\n'.join( # probably not the most efficient way
-            [ '@import "{}";'.format(path.replace('\\', '/')) for path in 
+            [ '@import "{}";'.format(path.replace('\\', '/')) for path in
                 ( # mixins and global variables must be imported first
                     # modules
                     [ f for f in get_import('modules') ]
-                    # vendor mixins 
+                    # vendor mixins
                   + [ f for f in get_import('vendor') if is_mixin(f) ]
                     # all other vendor files
                   + [ f for f in get_import('vendor') if not is_mixin(f) ]
                     # partials (comment out this line for manually selection)
                   + [ f for f in get_import('partials') ]
-                ) 
-            ] ) 
+                )
+            ] )
         )
     # use sass command line tool to generate stylesheets
-    stylesheets = [ splitext(f)[0] for f in os.listdir(dev_path) 
+    stylesheets = [ splitext(f)[0] for f in os.listdir(dev_path)
                     if is_sass(f) and not f.startswith('_') ]
     sass_path = relpath(dev_path, os.getcwd()).replace('\\', '/')
     if args.deploy:
         for s in stylesheets:
-            sCall("sass", sass_path+"/"+s+".scss", "static/css/"+s+".min.css", 
+            sCall("sass", sass_path+"/"+s+".scss", "static/css/"+s+".min.css",
                     "-t", "compressed", "--sourcemap=none", "-C")
         os.remove( join(dev_path, "_all.scss") )
     else:
@@ -386,8 +392,8 @@ def get_favicon_head():
         keys.reverse()
         for key in keys:
             yield link_tpl( fav_tpl.format(key, dic[key]) )
-    for fav_set in [ 
-        ('rel="icon" sizes="{0}x{0}" href="/{1}"', android_favs), 
+    for fav_set in [
+        ('rel="icon" sizes="{0}x{0}" href="/{1}"', android_favs),
         ('rel="apple-touch-icon" sizes="{0}x{0}" href="/{1}"', apple_favs),
         ('rel="icon" type="image/png" sizes="{0}x{0}" href="/{1}"', favicons) ]:
         fav_head += "".join( gen_head(*fav_set) )
@@ -406,10 +412,10 @@ def get_opengraph_head():
     <meta property="og:image:width" content="300">
     <meta property="og:image:height" content="300">
     <meta property="og:image:url" content="http://{{url}}/favicon-300x300.png">
-    <meta property="og:image" content="http://{{url}}/favicon-300x300.png">""" 
+    <meta property="og:image" content="http://{{url}}/favicon-300x300.png">"""
     if isfile("static/favicon/favicon-300x300.png"):
         og_head_string = og_head_string.replace(
-            '<meta property="open_graph_image">', 
+            '<meta property="open_graph_image">',
             og_image_string
         )
     return og_head_string
@@ -439,16 +445,22 @@ os.chdir("www")
 
 ### Import Bottle Framework ####################################################
 from urllib.error import URLError
+
+bottle_url = "https://raw.githubusercontent.com/bottlepy/bottle/master/bottle.py"
 try:
-    bottle_url = ( "https://raw.githubusercontent.com/"
-                    "bottlepy/bottle/master/bottle.py" )
     with urlopen(bottle_url) as response, open('bottle.py', 'wb') as f:
         copyfileobj(response, f)
 except URLError as e:
     print(e)
 
+# try:
+#     with open('/Users/Nick/Desktop/bottle.py', 'r') as tpl, open('bottle.py', 'w') as f:
+#         f.write(tpl.read())
+# except Exception as e:
+#     print(e)
+
 ### Generate App.py ############################################################
-Template.populate(APP_PY_TEMPLATE, 'app.py', 
+Template.populate(APP_PY_TEMPLATE, 'app.py',
     doc_string="",
     main_routes=migrate_views(),
     api_routes=get_api_routes(),
@@ -476,9 +488,12 @@ Template.populate(Template(head_tpl), 'views/~head.tpl',
     style_sheets=get_stylesheet_head() )
 
 ### Packaging For Deployment ###################################################
-if not args.deploy: exit(0)
+if not args.deploy:
+    #sCall('python', 'app.py', '-p', '8081')
+    exit(0)
+
 from zipfile import ZipFile
-os.chdir('..')
+os.chdir('..') # work on this
 if isfile('www.zip'): os.remove('www.zip')
 with ZipFile('www.zip', 'w') as zip_file:
     for root, dirs, files in os.walk( join(os.getcwd(), 'www') ):
@@ -487,4 +502,3 @@ with ZipFile('www.zip', 'w') as zip_file:
             zip_file.write( join(rel_path, f) )
 
 # set up watch for template and js files using watchdog
-

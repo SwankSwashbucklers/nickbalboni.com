@@ -1,25 +1,146 @@
 @import "all";
 
-.links {
-	@include fixpos(0);
-	@include flexbox;
-	@include flex-flow(wrap);
-	@include justify-content(space-around);
-	@include align-items(center);
-	@include align-content(center);
-	> span {
-		@include flex(none);
-		position: relative;
-		font-size: 8rem;
-		width: 8rem;
-		height: 8rem;
-		text-align: center;
-		margin: 3rem;
-		&:hover {
-			opacity: 0.7;
-		}
-		> a, &:before {
-			@include abspos(0);
-		}
-	}
+body.nick {
+
+
+  /**  COLORS  **/
+  $dark-grey: #2A2A2A;
+  $light-grey: #D1D1D1;
+  $white: #F2F2F2;
+
+
+  /**  GENERAL STYLINGS  **/
+  *:focus {
+    outline: none;
+  }
+  a.link {
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.7;
+    // maybe opacity instea of color
+    &, &:active, &:visited, &:hover {
+      color: $white;
+    }
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .btn { // shamelessly stolen from github
+    position: relative;
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    color: #24292e;
+    background-color: #eff3f6;
+    background-image: -webkit-linear-gradient(270deg, #fafbfc 0%, #eff3f6 90%);
+    background-image: linear-gradient(-180deg, #fafbfc 0%, #eff3f6 90%);
+    user-select: none;
+    background-repeat: repeat-x;
+    background-position: -1px -1px;
+    background-size: 110% 110%;
+    border: 1px solid rgba(27,31,35,0.2);
+    border-radius: 0.25em;
+    &:hover {
+      background-color: #e6ebf1;
+      background-image: -webkit-linear-gradient(270deg, #f0f3f6 0%, #e6ebf1 90%);
+      background-image: linear-gradient(-180deg, #f0f3f6 0%, #e6ebf1 90%);
+      background-position: 0 -0.5em;
+      border-color: rgba(27,31,35,0.35);
+    }
+    &:active {
+      background-color: #e9ecef;
+      background-image: none;
+      border-color: rgba(27,31,35,0.35);
+      box-shadow: inset 0 0.15em 0.3em rgba(27,31,35,0.15);
+    }
+  }
+
+  .vertical-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+
+  /**  GENERAL LAYOUT  **/
+  display: flex;
+  main {
+    flex: 1;
+  }
+
+
+  /**  HEADER & FOOTER  **/
+  header, footer {
+    background: $dark-grey;
+    color: $white;
+    .buffer {
+      flex: 1;
+    }
+    .header-content, .footer-content {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+  }
+
+  header {
+    padding: 25px;
+    h1 {
+      font-size: 32px;
+      margin: 22.5px 0px;
+    }
+    nav {
+      margin: 15px 0px 65px 0px;
+      /* selection rules */
+      &.about > :nth-child(1),
+      &.open-source > :nth-child(2),
+      &.portfolio > :nth-child(3),
+      &.resume > :nth-child(4) {
+        opacity: 1;
+        text-decoration: underline;
+      }
+      a.link {
+        margin: 15px 0px;
+        font-size: 18px;
+      }
+    }
+    button {
+      margin: 15px 0px;
+      font-size: 16px;
+    }
+  }
+
+  footer {
+    padding: 15px;
+    h1 {
+      font-size: 18px;
+      margin: 40px 0px 24px 0px;
+    }
+    a.link {
+      margin: 4px 0px;
+      > span {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  /**  PAGES  **/
+  .resume {
+    @include flexbox;
+    @include justify-content(center);
+    > iframe {
+      @include flex(1);
+    }
+  }
+
 }
